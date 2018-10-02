@@ -159,18 +159,18 @@ else
     contrast.Gmax = {'gmax', 'gmax > rand', 'gmax > pmax', 'gmax > lmin', 'gmax > non gmax'};
     contrast.Lmin = {'lmin', 'lmin > rand', 'lmin > pmax', 'lmin > gmax', 'lmin > non lmin'};
     contrast.Rand = {'rand','rand > all', 'all > rand'};
-    contrast.Mixd = {'non pmax > pmax', 'non gmax > gmax', 'non lmin > lmin', 'non pmax', 'non rand'};
+    contrast.Mix  = {'non pmax > pmax', 'non gmax > gmax', 'non lmin > lmin', 'non pmax', 'structured', 'nongmax', 'non_lmin', 'non_pmax > random', 'non_gmax > random'};
 
-    contrast.Options = horzcat(contrast.Pmax, contrast.Gmax, contrast.Lmin, contrast.Rand, contrast.Mixd).';
+    contrast.Options = horzcat(contrast.Pmax, contrast.Gmax, contrast.Lmin, contrast.Rand, contrast.Mix).';
 
     %% Names for the contrasts in the file
     contrast.PmaxFile = {'pmax', 'pmaxVSrand', 'pmaxVSgmax', 'pmaxVSlmin', 'pmaxVSnon_pmax'};
     contrast.GmaxFile = {'gmax', 'gmaxVSrand', 'gmaxVSpmax', 'gmaxVSlmin', 'gmaxVSnon_gmax'};
     contrast.LminFile = {'lmin', 'lminVSrand', 'lminVSpmax', 'lminVSgmax', 'lminVSnon_lmin'};
     contrast.RandFile = {'rand','randVSall', 'allVSrand'};
-    contrast.MixdFile = {'non_pmaxVSpmax', 'non_gmaxVSgmax', 'non_lminVSlmin', 'non_pmax', 'non_rand'};
+    contrast.MixFile  = {'non_pmaxVSpmax', 'non_gmaxVSgmax', 'non_lminVSlmin', 'non_pmax', 'structured', 'nongmax', 'non_lmin', 'non_pmaxVSrandom', 'non_gmaxVSrandom'};
 
-    contrast.Files = horzcat(contrast.PmaxFile, contrast.GmaxFile, contrast.LminFile, contrast.RandFile, contrast.MixdFile).';
+    contrast.Files = horzcat(contrast.PmaxFile, contrast.GmaxFile, contrast.LminFile, contrast.RandFile, contrast.MixFile).';
 
     % Ask if you want to include covariates in group analysis
     [options.Covariates, ~] = listdlg('ListString',{'Yes','No'},'Name','Include covariates?', 'ListSize',[250,400]);
@@ -238,7 +238,6 @@ else
         
     %% ITERATE OVER ALL THE CON FILES TO CREATE 2ND LEVEL CONTRASTS
     for iContrast = 1:length(contrast.List)
-
 
         %% Assign folder for the results (create if it doesn't exist)
         if options.Covariates == 2 
