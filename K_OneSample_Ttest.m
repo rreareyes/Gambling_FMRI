@@ -155,11 +155,12 @@ else
     load(file.Survey, 'Age');
 
     %% Names for the options
+    
     contrast.Pmax = {'pmax', 'pmax > rand', 'pmax > gmax', 'pmax > lmin', 'pmax > non pmax'};
     contrast.Gmax = {'gmax', 'gmax > rand', 'gmax > pmax', 'gmax > lmin', 'gmax > non gmax'};
     contrast.Lmin = {'lmin', 'lmin > rand', 'lmin > pmax', 'lmin > gmax', 'lmin > non lmin'};
     contrast.Rand = {'rand','rand > all', 'all > rand'};
-    contrast.Mix  = {'non pmax > pmax', 'non gmax > gmax', 'non lmin > lmin', 'non pmax', 'structured', 'nongmax', 'non_lmin', 'non_pmax > random', 'non_gmax > random'};
+    contrast.Mix  = {'non pmax > pmax', 'non gmax > gmax', 'non lmin > lmin', 'non pmax', 'structured', 'nongmax', 'non_lmin', 'non_pmax > random', 'non_gmax > random', 'zero', 'negative', 'zero > negative'};
 
     contrast.Options = horzcat(contrast.Pmax, contrast.Gmax, contrast.Lmin, contrast.Rand, contrast.Mix).';
 
@@ -168,7 +169,7 @@ else
     contrast.GmaxFile = {'gmax', 'gmaxVSrand', 'gmaxVSpmax', 'gmaxVSlmin', 'gmaxVSnon_gmax'};
     contrast.LminFile = {'lmin', 'lminVSrand', 'lminVSpmax', 'lminVSgmax', 'lminVSnon_lmin'};
     contrast.RandFile = {'rand','randVSall', 'allVSrand'};
-    contrast.MixFile  = {'non_pmaxVSpmax', 'non_gmaxVSgmax', 'non_lminVSlmin', 'non_pmax', 'structured', 'nongmax', 'non_lmin', 'non_pmaxVSrandom', 'non_gmaxVSrandom'};
+    contrast.MixFile  = {'non_pmaxVSpmax', 'non_gmaxVSgmax', 'non_lminVSlmin', 'non_pmax', 'structured', 'nongmax', 'non_lmin', 'non_pmaxVSrandom', 'non_gmaxVSrandom', 'zero', 'negative', 'zeroVSnegative'};
 
     contrast.Files = horzcat(contrast.PmaxFile, contrast.GmaxFile, contrast.LminFile, contrast.RandFile, contrast.MixFile).';
 

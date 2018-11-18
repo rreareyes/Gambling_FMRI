@@ -83,50 +83,85 @@ for iSubj = 1:size(group.SubjectsPaths,1)
         clear stim_choice
         
         %% Create arrays for each condition with trial onset (start time) and duration (RT)
-        run.RandLoc  = (contains(run.TrialType, 'rand') & ~isnan(run.TrialResponse));
-        run.PmaxLoc  = run.Pmax == run.TrialResponse;
-        run.GmaxLoc  = run.Gmax == run.TrialResponse;
-        run.LminLoc  = run.Lmin == run.TrialResponse;
+        run.RandLoc = (contains(run.TrialType, 'rand') & ~isnan(run.TrialResponse));
+              
+        run.PmaxZeroLoc = contains(run.TrialType, 'trad_zero') & run.Pmax == run.TrialResponse;
+        run.GmaxZeroLoc = contains(run.TrialType, 'trad_zero') & run.Gmax == run.TrialResponse;
+        run.LminZeroLoc = contains(run.TrialType, 'trad_zero') & run.Lmin == run.TrialResponse;
+        
+        run.PmaxNegLoc = contains(run.TrialType, 'trad_neg') & run.Pmax == run.TrialResponse;
+        run.GmaxNegLoc = contains(run.TrialType, 'trad_neg') & run.Gmax == run.TrialResponse;
+        run.LminNegLoc = contains(run.TrialType, 'trad_neg') & run.Lmin == run.TrialResponse;        
         
         run.RandOnset = run.TrialOnset(run.RandLoc);
-        run.PmaxOnset = run.TrialOnset(run.PmaxLoc); 
-        run.GmaxOnset = run.TrialOnset(run.GmaxLoc); 
-        run.LminOnset = run.TrialOnset(run.LminLoc); 
+        
+        run.PmaxZeroOnset = run.TrialOnset(run.PmaxZeroLoc); 
+        run.GmaxZeroOnset = run.TrialOnset(run.GmaxZeroLoc); 
+        run.LminZeroOnset = run.TrialOnset(run.LminZeroLoc); 
+        
+        run.PmaxNegOnset = run.TrialOnset(run.PmaxNegLoc); 
+        run.GmaxNegOnset = run.TrialOnset(run.GmaxNegLoc); 
+        run.LminNegOnset = run.TrialOnset(run.LminNegLoc); 
         
         run.RandDuration = run.TrialDuration(run.RandLoc);
-        run.PmaxDuration = run.TrialDuration(run.PmaxLoc); 
-        run.GmaxDuration = run.TrialDuration(run.GmaxLoc); 
-        run.LminDuration = run.TrialDuration(run.LminLoc);
+        
+        run.PmaxZeroDuration = run.TrialDuration(run.PmaxZeroLoc); 
+        run.GmaxZeroDuration = run.TrialDuration(run.GmaxZeroLoc); 
+        run.LminZeroDuration = run.TrialDuration(run.LminZeroLoc);
+        
+        run.PmaxNegDuration = run.TrialDuration(run.PmaxNegLoc); 
+        run.GmaxNegDuration = run.TrialDuration(run.GmaxNegLoc); 
+        run.LminNegDuration = run.TrialDuration(run.LminNegLoc);
         
         %% Set names for conditions 
         if any(isempty (run.RandOnset), 1)
             run.RandName = {};
         else
-            run.RandName ='random';
+            run.RandName = 'random';
+        end
+        
+        % Zero Trials
+        if any(isempty (run.PmaxZeroOnset), 1)
+            run.PmaxZeroName = {};
+        else
+            run.PmaxZeroName = 'pmax_zero';
         end
 
-        if any(isempty (run.PmaxOnset), 1)
-            run.PmaxName = {};
+        if any(isempty (run.GmaxZeroOnset), 1)
+            run.GmaxZeroName = {};
         else
-            run.PmaxName ='pmax';
+            run.GmaxZeroName ='gmax_zero';
         end
 
-        if any(isempty (run.GmaxOnset), 1)
-            run.GmaxName = {};
+        if any(isempty (run.LminZeroOnset), 1)
+            run.LminZeroName = {};
         else
-            run.GmaxName ='gmax';
+            run.LminZeroName = 'lmin_zero';
+        end
+        
+        % Neg trials
+        if any(isempty (run.PmaxNegOnset), 1)
+            run.PmaxNegName = {};
+        else
+            run.PmaxNegName = 'pmax_neg';
         end
 
-        if any(isempty (run.LminOnset), 1)
-            run.LminName = {};
+        if any(isempty (run.GmaxNegOnset), 1)
+            run.GmaxNegName = {};
         else
-            run.LminName = 'lmin';
+            run.GmaxNegName ='gmax_neg';
+        end
+
+        if any(isempty (run.LminNegOnset), 1)
+            run.LminNegName = {};
+        else
+            run.LminNegName = 'lmin_neg';
         end
         
         %% Create final arrays for the run
-        names     = {run.RandName, run.PmaxName, run. GmaxName, run.LminName};
-        onsets    = {run.RandOnset, run.PmaxOnset, run. GmaxOnset, run.LminOnset};
-        durations = {run.RandDuration, run.PmaxDuration, run. GmaxDuration, run.LminDuration};
+        names     = {run.RandName, run.PmaxZeroName, run.GmaxZeroName, run.LminZeroName, run.PmaxNegName, run. GmaxNegName, run.LminNegName};
+        onsets    = {run.RandOnset, run.PmaxZeroOnset, run.GmaxZeroOnset, run.LminZeroOnset, run.PmaxNegOnset, run.GmaxNegOnset, run.LminNegOnset};
+        durations = {run.RandDuration, run.PmaxZeroDuration, run.GmaxZeroDuration, run.LminZeroDuration, run.PmaxNegDuration, run.GmaxNegDuration, run.LminNegDuration};
         
         names     = names(~cellfun('isempty', names));
         onsets    = onsets(~cellfun('isempty', onsets));

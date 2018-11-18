@@ -90,7 +90,7 @@ contrast.Pmax = {'pmax', 'pmax > rand', 'pmax > gmax', 'pmax > lmin', 'pmax > no
 contrast.Gmax = {'gmax', 'gmax > rand', 'gmax > pmax', 'gmax > lmin', 'gmax > non gmax'};
 contrast.Lmin = {'lmin', 'lmin > rand', 'lmin > pmax', 'lmin > gmax', 'lmin > non lmin'};
 contrast.Rand = {'rand','rand > all', 'all > rand'};
-contrast.Mix  = {'non pmax > pmax', 'non gmax > gmax', 'non lmin > lmin', 'non pmax', 'structured', 'nongmax', 'non_lmin', 'non_pmax > random', 'non_gmax > random'};
+contrast.Mix  = {'non pmax > pmax', 'non gmax > gmax', 'non lmin > lmin', 'non pmax', 'structured', 'nongmax', 'non_lmin', 'non_pmax > random', 'non_gmax > random', 'zero', 'negative', 'zero > negative'};
 
 contrast.Names = horzcat(contrast.Pmax, contrast.Gmax, contrast.Lmin, contrast.Rand, contrast.Mix).';
 
@@ -99,7 +99,7 @@ file.Pmax = {'pmax', 'pmaxVSrand', 'pmaxVSgmax', 'pmaxVSlmin', 'pmaxVSnon_pmax'}
 file.Gmax = {'gmax', 'gmaxVSrand', 'gmaxVSpmax', 'gmaxVSlmin', 'gmaxVSnon_gmax'};
 file.Lmin = {'lmin', 'lminVSrand', 'lminVSpmax', 'lminVSgmax', 'lminVSnon_lmin'};
 file.Rand = {'rand','randVSall', 'allVSrand'};
-file.Mix  = {'non_pmaxVSpmax', 'non_gmaxVSgmax', 'non_lminVSlmin', 'non_pmax', 'structured', 'nongmax', 'non_lmin', 'non_pmaxVSrandom', 'non_gmaxVSrandom'};
+file.Mix  = {'non_pmaxVSpmax', 'non_gmaxVSgmax', 'non_lminVSlmin', 'non_pmax', 'structured', 'nongmax', 'non_lmin', 'non_pmaxVSrandom', 'non_gmaxVSrandom', 'zero', 'negative', 'zeroVSnegative'};
 
 file.Names = horzcat(file.Pmax, file.Gmax, file.Lmin, file.Rand, file.Mix).';
 
@@ -149,47 +149,89 @@ for iSubject = 1:size(group.SubjectsPaths,1)
     elseif options.Style == 2 
 
         %% Locate all the points where a condition appears in the design matrix and create and array of 1's & 0's for each
-        subject.Rand = contains(subject.Conditions, 'rand'); 
+        subject.Rand   = contains(subject.Conditions, 'rand');
+        subject.Struct = contains(subject.Conditions, {'pmax', 'gmax', 'lmin'});
+        
+        subject.PmaxZero = contains(subject.Conditions, 'pmax_zero'); 
+        subject.GmaxZero = contains(subject.Conditions, 'gmax_zero');
+        subject.LminZero = contains(subject.Conditions, 'lmin_zero');
+        
+        subject.PmaxNeg = contains(subject.Conditions, 'pmax_neg'); 
+        subject.GmaxNeg = contains(subject.Conditions, 'gmax_neg');
+        subject.LminNeg = contains(subject.Conditions, 'lmin_neg');
+        
         subject.Pmax = contains(subject.Conditions, 'pmax'); 
         subject.Gmax = contains(subject.Conditions, 'gmax');
         subject.Lmin = contains(subject.Conditions, 'lmin');
-
+        
+        subject.Zero = contains(subject.Conditions, '_zero'); 
+        subject.Neg  = contains(subject.Conditions, '_neg');
+        
         %% Get the number of runs where a condition was present
-        subject.nRand = sum(subject.Rand); 
+        subject.nRand   = sum(subject.Rand);
+        subject.nStruct = sum(subject.Struct);
+        
+        subject.nPmaxZero = sum(subject.PmaxZero); 
+        subject.nGmaxZero = sum(subject.GmaxZero);
+        subject.nLminZero = sum(subject.LminZero);
+        
+        subject.nPmaxNeg = sum(subject.PmaxNeg); 
+        subject.nGmaxNeg = sum(subject.GmaxNeg);
+        subject.nLminNeg = sum(subject.LminNeg);
+        
         subject.nPmax = sum(subject.Pmax); 
         subject.nGmax = sum(subject.Gmax);
         subject.nLmin = sum(subject.Lmin);
+        
+        subject.nZero = sum(subject.Zero);
+        subject.nNeg  = sum(subject.Neg);
 
         %% Get the actual weight of every condition for the contrast matrix
-        %% random
-        subject.WeightRand       = subject.Rand ./ subject.nRand;
-        subject.WeightRandPair   = subject.Rand ./ (2 * subject.nRand); % When adding 2 conditions, we need to give half of the weight to each
-        subject.WeightRandGlobal = subject.Rand ./ (3 * subject.nRand); % When grouping all conditions, we need to give 1/3 of the weight to each
+        %% Random Trials
+        subject.WeightRand = subject.Rand ./ subject.nRand;
+                
+        %% Zero Trials
+        % pmax
+        subject.WeightPmaxZero = subject.PmaxZero ./ subject.nPmaxZero;
+        
+        % gmax
+        subject.WeightGmaxZero = subject.GmaxZero ./ subject.nGmaxZero;
+        
+        % lmin
+        subject.WeightLminZero = subject.LminZero ./ subject.nLminZero;
+        
+        % All Zero
+        subject.WeightZero = subject.Zero ./ subject.nZero;
+        
+        %% Negative Trials
+        % pmax
+        subject.WeightPmaxNeg = subject.PmaxNeg ./ subject.nPmaxNeg;
 
-        %% pmax
-        subject.WeightPmax       = subject.Pmax ./ subject.nPmax;
-        subject.WeightPmaxPair   = subject.Pmax ./ (2 * subject.nPmax); 
-        subject.WeightPmaxGlobal = subject.Pmax ./ (3 * subject.nPmax); 
-
-        %% gmax
-        subject.WeightGmax       = subject.Gmax ./ subject.nGmax;
-        subject.WeightGmaxPair   = subject.Gmax ./ (2 * subject.nGmax); 
-        subject.WeightGmaxGlobal = subject.Gmax ./ (3 * subject.nGmax); 
-
-        %% lmin
-        subject.WeightLmin       = subject.Lmin ./ subject.nLmin;
-        subject.WeightLminPair   = subject.Lmin ./ (2 * subject.nLmin); 
-        subject.WeightLminGlobal = subject.Lmin ./ (3 * subject.nLmin); 
+        % gmax
+        subject.WeightGmaxNeg = subject.GmaxNeg ./ subject.nGmaxNeg;
+        
+        % lmin
+        subject.WeightLminNeg = subject.LminNeg ./ subject.nLminNeg;
+        
+        % All Negative
+        subject.WeightNeg = subject.Neg ./ subject.nNeg;
+        
+        %% Structured
+        subject.WeightPmax = subject.Pmax ./ subject.nPmax;
+        subject.WeightGmax = subject.Gmax ./ subject.nGmax;
+        subject.WeightLmin = subject.Lmin ./ subject.nLmin;
+        
+        subject.WeightStructured = subject.Struct ./ subject.nStruct;
 
         %% mix
-        subject.WeightRandPmax     = subject.WeightRandPair + subject.WeightPmaxPair; 
-        subject.WeightRandGmax     = subject.WeightRandPair + subject.WeightGmaxPair;
-        subject.WeightRandLmin     = subject.WeightRandPair + subject.WeightLminPair;
-        subject.WeightNonlmin      = subject.WeightPmaxPair + subject.WeightGmaxPair;
-        subject.WeightNongmax      = subject.WeightPmaxPair + subject.WeightLminPair;
-        subject.WeightNonpmax      = subject.WeightGmaxPair + subject.WeightLminPair;
-        subject.WeightStructured   = subject.WeightPmaxGlobal + subject.WeightGmaxGlobal + subject.WeightLminGlobal;
-
+        subject.WeightRandPmax     = (subject.WeightRand + subject.WeightPmax) ./ 2; 
+        subject.WeightRandGmax     = (subject.WeightRand + subject.WeightGmax) ./ 2;
+        subject.WeightRandLmin     = (subject.WeightRand + subject.WeightLmin) ./ 2;
+        
+        subject.WeightNonlmin      = (subject.WeightPmax + subject.WeightGmax) ./ 2;
+        subject.WeightNongmax      = (subject.WeightPmax + subject.WeightLmin) ./ 2;
+        subject.WeightNonpmax      = (subject.WeightGmax + subject.WeightLmin) ./ 2;
+                
         %% Create the arrays for every contrast
         %% pmax
         subject.ContrPmax        = subject.WeightPmax;
@@ -197,6 +239,11 @@ for iSubject = 1:size(group.SubjectsPaths,1)
         subject.ContrPmaxGmax    = subject.WeightPmax - subject.WeightGmax;
         subject.ContrPmaxLmin    = subject.WeightPmax - subject.WeightLmin;
         subject.ContrPmaxNonpmax = subject.WeightPmax - subject.WeightNonpmax;
+        
+        %% zero and negative
+        subject.ContrZero    = subject.WeightZero;
+        subject.ContrNeg     = subject.WeightNeg;
+        subject.ContrZeroNeg = subject.WeightZero - subject.WeightNeg;
 
         %% gmax
         subject.ContrGmax          = subject.WeightGmax;
@@ -218,9 +265,9 @@ for iSubject = 1:size(group.SubjectsPaths,1)
         subject.ContrStructuredVSRand = subject.WeightStructured - subject.WeightRand;
 
         %% mix
-        subject.ContrNonpmaxPmax = (subject.WeightNonpmax) - subject.WeightPmax;
-        subject.ContrNongmaxGmax = (subject.WeightNongmax) - subject.WeightGmax;
-        subject.ContrNonlminLmin = (subject.WeightNonlmin) - subject.WeightLmin;
+        subject.ContrNonpmaxPmax = subject.WeightNonpmax - subject.WeightPmax;
+        subject.ContrNongmaxGmax = subject.WeightNongmax - subject.WeightGmax;
+        subject.ContrNonlminLmin = subject.WeightNonlmin - subject.WeightLmin;
         subject.ContrNonpmax     = subject.WeightNonpmax;
         subject.ContrStructured  = subject.WeightStructured;
         subject.ContrNongmax     = subject.WeightNongmax;
@@ -229,9 +276,7 @@ for iSubject = 1:size(group.SubjectsPaths,1)
         subject.ContrNongmaxRand = (subject.WeightNongmax) - subject.WeightRand;
         
         %'nongmax', 'non_lmin', 'non_pmaxVSrandom', 'non_gmaxVSrandom'
-        
-        
-        
+              
         %% Create contrast matrix
         % Identify which contrasts exist for this subject
         subject.RawContrasts = vertcat(subject.ContrPmax, subject.ContrPmaxRand, subject.ContrPmaxGmax, subject.ContrPmaxLmin,            ...
@@ -240,7 +285,8 @@ for iSubject = 1:size(group.SubjectsPaths,1)
                                        subject.ContrLminVSPmax, subject.ContrLminVSGmax, subject.ContrLminVSNonlmin, subject.ContrRand,   ...
                                        subject.ContrRandVSStructured, subject.ContrStructuredVSRand, subject.ContrNonpmaxPmax,            ...
                                        subject.ContrNongmaxGmax, subject.ContrNonlminLmin, subject.ContrNonpmax, subject.ContrStructured, ...
-                                       subject.ContrNongmax, subject.ContrNonlmin, subject.ContrNonpmaxRand, subject.ContrNongmaxRand);
+                                       subject.ContrNongmax, subject.ContrNonlmin, subject.ContrNonpmaxRand, subject.ContrNongmaxRand,    ...
+                                       subject.ContrZero, subject.ContrNeg, subject.ContrZeroNeg);
         
         subject.NotEmptyContrast = subject.RawContrasts ~= 0 & ~isnan(subject.RawContrasts);
         subject.ValidContrasts   = sum(subject.NotEmptyContrast,2) ~= 0; % mark non-empty contrasts
@@ -255,24 +301,24 @@ for iSubject = 1:size(group.SubjectsPaths,1)
         % Comparisons between conditions must sum 0 (rounded to 5 decimals)
         % Single conditions must sum 1
         %% Statements for boxes
-        errorCheck.Statements                                      = cell(27,1);
-        errorCheck.Statements ([1, 6, 11, 16, 22, 23:25],1)        = {'does not sum 1, check weights'};
-        errorCheck.Statements ([2:5, 7:10, 12:15, 17:21, 26:27],1) = {'does not sum 0, check weights'};
-        errorCheck.Messages                                        = horzcat(contrast.Names, errorCheck.Statements);
-        errorCheck.Messages                                        = errorCheck.Messages(subject.ValidContrasts,:); 
+        errorCheck.Statements                                          = cell(30,1);
+        errorCheck.Statements ([1, 6, 11, 16, 22, 23:25, 28:29],1)     = {'does not sum 1, check weights'};
+        errorCheck.Statements ([2:5, 7:10, 12:15, 17:21, 26:27, 30],1) = {'does not sum 0, check weights'};
+        errorCheck.Messages                                            = horzcat(contrast.Names, errorCheck.Statements);
+        errorCheck.Messages                                            = errorCheck.Messages(subject.ValidContrasts,:); 
 
         %% Create a reference matrix to check the existing contrast values
-        errorCheck.ReferenceMatrix                            = zeros(27,1);
-        errorCheck.ReferenceMatrix([1, 6, 11, 16, 22, 23:25]) = 1;
-        errorCheck.ReferenceMatrix                            = errorCheck.ReferenceMatrix(subject.ValidContrasts);
+        errorCheck.ReferenceMatrix                                   = zeros(30, 1);
+        errorCheck.ReferenceMatrix([1, 6, 11, 16, 22, 23:25, 28:29]) = 1;
+        errorCheck.ReferenceMatrix                                   = errorCheck.ReferenceMatrix(subject.ValidContrasts);
 
         %% Sum values from existing contrasts
-        errorCheck.ContrastValue = round(sum(subject.ContrastMatrix,2),5);
+        errorCheck.ContrastValue = round(sum(subject.ContrastMatrix,2), 5);
 
         %% Check every contrast and display a message if something is wrong
         for iContrast = 1:size(subject.ContrastNames, 1)
-            if errorCheck.ReferenceMatrix (iContrast,1) ~= errorCheck.ContrastValue (iContrast,1)
-                msgbox([errorCheck.Messages{iContrast,1} ' ' errorCheck.Messages{iContrast,2}], 'CONTRAST INVALID', 'warn')
+            if errorCheck.ReferenceMatrix (iContrast, 1) ~= errorCheck.ContrastValue (iContrast,1)
+                msgbox([errorCheck.Messages{iContrast, 1} ' ' errorCheck.Messages{iContrast,2}], 'CONTRAST INVALID', 'warn')
                 errorCheck.Problem = 1;
             else
                 errorCheck.Problem = 0;
@@ -329,7 +375,7 @@ for iSubject = 1:size(group.SubjectsPaths,1)
 
     end  % end of if statement on analysis type
 
-end
+end % end of subject loop
 
 %% Return to scripts folder
 cd(folder.Scripts)

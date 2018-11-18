@@ -2,17 +2,25 @@
 
 % This script allows to import the data from the gamble fmri Dicom files
 
+% You require to create a folder called "DICOM" and store there the folders
+% with your subject's scans.
+
+% Also, it requires having the script files in a folder called "Scripts"
+
+% You can modify this if you want, just go to the section "Base Paths" and
+% change to your preferred folder names if necessary.
+
 % It uses the original organization of container folders from the scanner:
 %   DICOM
 %       sXX
 %           ProjectCode
-%               Session
-%                   Images.nii
+%               Session(Run)
+%                   Images.DICOM
 
 % It creates a folder per subject with the following organization:
 %   NII
 %       sXX
-%           Session
+%           Session(Run)
 %               Images.nii
 
 %% Authorship
@@ -36,11 +44,11 @@ folder.DicomPaths      = dir(folder.Dicom);
 folder.DicomPaths(1:2) = [];
 
 %% Ask for which subjects to run
-[options.Group, ~] = listdlg('ListString', {'Individual Elements', 'All Subjects'}, 'Name', 'No. Subjects to Process?');
+[options.Group, ~] = listdlg('ListString', {'Individual Elements', 'All Subjects'}, 'Name', 'No. Subjects to Process?','ListSize',[280,250]);
 
 %% Set subject paths for input and output images according to subjects selected
 if options.Group == 1 % Customized list
-    [options.Subjects, ~] = listdlg('ListString', char(folder.DicomPaths.name), 'Name','Which subjects do you want?');
+    [options.Subjects, ~] = listdlg('ListString', char(folder.DicomPaths.name), 'Name','Which subjects do you want to process?', 'ListSize',[350,250]);
     group.DicomList  = folder.DicomPaths(options.Subjects);
 
 elseif options.Group == 2 % All subjects
