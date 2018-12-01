@@ -13,7 +13,6 @@
 
 % Finally, it calculates mean, std, and median just for reference.
 
-% Just testing if git integration works
 %% Authorship
 % Created by Eduardo Rea for project "Heuristic development"
 % NLP Lab UMass Amherst
